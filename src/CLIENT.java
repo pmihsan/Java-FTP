@@ -25,14 +25,8 @@ public class CLIENT {
         String[] details = args[0].split("@");
         String user = details[0];
         String ip = details[1];
-        String pass =  "1234";
+        String pass =  HELPER.getPassword();;
         int port = Integer.parseInt(args[1]);
-
-        Console c = System.console();
-        if(c != null){
-            System.out.print("Enter your password: ");
-            pass = new String(c.readPassword());
-        }
 
         Scanner sc = new Scanner(System.in);
         DataOutputStream out;
@@ -41,7 +35,7 @@ public class CLIENT {
         try {
             Socket s = new Socket(ip, port);
             out = new DataOutputStream(s.getOutputStream());
-            out.writeUTF(user + "@" + pass);
+            out.writeUTF(user + "@" + (pass != null ? pass : "1234"));
             out.flush();
 
             in = new DataInputStream(s.getInputStream());

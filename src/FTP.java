@@ -3,11 +3,11 @@ import java.io.*;
 public class FTP {
     public static boolean isNumeric(String s){
         for(int i=0;i<s.length();i++){
-            if(!(s.charAt(i) >= '0' && s.charAt(i) <= '9')) return false;
+            if(!(Character.isDigit(s.charAt(i)))) return false;
         }
         return true;
     }
-    public static void receive(String file, DataInputStream in, String d) throws IOException {
+    public static synchronized void receive(String file, DataInputStream in, String d) throws IOException {
 
         if(in.readUTF().equalsIgnoreCase("yes")){
             System.out.print("Receiving File: " + file + " ");
@@ -32,7 +32,7 @@ public class FTP {
         }
     }
 
-    public static void send(String file, DataOutputStream out, String d) throws IOException{
+    public static synchronized void send(String file, DataOutputStream out, String d) throws IOException{
         System.out.print("Sending File: " + file + " ");
         File temp = new File(d, file);
 

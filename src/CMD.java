@@ -25,7 +25,7 @@ public class CMD {
             out.writeUTF(returnDirectory(dir));
         }
         else if(cmd[0].equalsIgnoreCase("whoami")){
-            out.writeUTF(System.getProperty("user.name"));
+            out.writeUTF(HELPER.current_user);
         }
         else if(cmd[0].equalsIgnoreCase("exit")){
             out.writeUTF("exit");
@@ -58,7 +58,7 @@ public class CMD {
                 else out.writeUTF("Unable to change directory");
                 return;
             }
-            String path = dir.getAbsolutePath() + HELPER.path_sep + cmd[1];
+            String path = returnDirectory(dir) + HELPER.path_sep + cmd[1];
             File fp = new File(path);
             if (fp.exists() && fp.isDirectory()) {
                 start = false;
@@ -71,7 +71,7 @@ public class CMD {
     }
 
     public static String returnDirectory(File dir){
-        if(start)return dir.getAbsolutePath();
+        if(start) return dir.getAbsolutePath();
         else return System.getProperty("user.dir");
     }
 }

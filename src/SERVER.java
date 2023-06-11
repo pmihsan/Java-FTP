@@ -18,16 +18,10 @@ public class SERVER {
         String home = System.getProperty("user.home") + HELPER.path_sep + "jftp";
         File root = new File(home);
 
-        Console c = System.console();
-        String pass = "1234";
-        if (c != null) {
-            System.out.print("Enter your password: ");
-            pass = new String(c.readPassword());
-        }
-
         if (!root.exists()) {
             if (HELPER.initializeServer(root)) {
-                HELPER.createUser(root, pass);
+                String pass = HELPER.getPassword();
+                HELPER.createUser(root, pass != null ? pass : "1234");
                 HELPER.createLogFile(root);
                 System.out.println("FTP Default Initialization");
             } else {
@@ -36,6 +30,7 @@ public class SERVER {
             }
         } else {
             HELPER.loadUser(root);
+            HELPER.serverStartup(root);
         }
 
         File startup = null;
@@ -67,6 +62,7 @@ public class SERVER {
                 String user = in.readUTF();
                 String[] d = user.split("@");
                 if (HELPER.verifyUser(d)) {
+                    HELPER.current_user = d[0];
                     out.write(1);
                     out.flush();
                 } else {

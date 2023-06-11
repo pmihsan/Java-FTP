@@ -8,6 +8,8 @@ import java.util.Scanner;
 public class HELPER {
     static char path_sep = File.separatorChar;
     static HashMap<String, String> user_pass;
+    static String current_user;
+    static Console console = System.console();
     public static boolean initializeServer(File root){
         if(root.mkdir()) {
             File config = new File(root.getPath(), "config");
@@ -40,6 +42,40 @@ public class HELPER {
         pw.close();
     }
 
+    public static synchronized String getPassword(){
+        if (console != null) {
+            System.out.print("Enter your password: ");
+            return new String(console.readPassword());
+        }
+        return null;
+    }
+
+    public static void serverStartup(File root) throws IOException {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Server Startup");
+        System.out.println("1) Start Server");
+        System.out.println("2) Add User");
+        System.out.println("3) List User");
+        System.out.print("Enter your choice: ");
+        int choice = sc.nextInt();
+
+        if(choice == 2){
+            System.out.println("Enter username");
+            String user = sc.next();
+            String pass = getPassword();
+            addUser(root, user, pass != null ? pass : "1234");
+            System.out.println("User " + user + " added");
+        }
+        else if(choice == 3){
+            System.out.println("USERS:");
+            for (String s : user_pass.keySet()) System.out.println(s);
+            System.out.println();
+        }
+        System.out.println("Server Staring");
+        System.out.println();
+    }
+
     public static void createUser(File root, String pass) throws IOException {
         File user_hash = new File(root.getPath() + path_sep + "config", "user_hash");
 
@@ -65,6 +101,19 @@ public class HELPER {
         }
     }
 
+    public static void addUser(File root, String user, String pass) throws IOException{
+        File user_hash = new File(root.getPath() + path_sep + "config", "user_hash");
+
+        String hash = getSHA256Hash(pass);
+        String store = user + ":" + hash;
+
+        user_pass.put(user, hash);
+
+        PrintWriter pw = new PrintWriter(new FileOutputStream(user_hash, true));
+        pw.println(store);
+        pw.close();
+    }
+
     public static synchronized boolean verifyUser(String[] data){
         return user_pass.containsKey(data[0]) && user_pass.get(data[0]).equals(getSHA256Hash(data[1]));
     }
@@ -75,7 +124,7 @@ public class HELPER {
             StringBuilder hashBuilder = new StringBuilder();
 
             for (byte b : hashBytes) {
-                hashBuilder.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
+                hashBuilder.append(Integer.toHexString((b & 0xFF) | 0x100), 1, 3);
             }
 
             return hashBuilder.toString();
