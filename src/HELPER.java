@@ -6,11 +6,15 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class HELPER {
-    static char path_sep = File.separatorChar;
-    static HashMap<String, String> user_pass;
-    static String current_user;
-    static Console console = System.console();
-    public static boolean initializeServer(File root){
+    char path_sep;
+    HashMap<String, String> user_pass;
+    Console console;
+
+    HELPER(){
+        path_sep = File.separatorChar;
+        console = System.console();
+    }
+    public boolean initializeServer(File root){
         if(root.mkdir()) {
             File config = new File(root.getPath(), "config");
             File share = new File(root.getPath(), "share");
@@ -21,7 +25,7 @@ public class HELPER {
         return false;
     }
 
-    public static void createLogFile(File root) throws IOException {
+    public void createLogFile(File root) throws IOException {
         File access_log = new File(root.getPath() + path_sep + "log", "access_log");
         File startup = new File(root.getPath() + path_sep + "log", "startup");
 
@@ -35,14 +39,14 @@ public class HELPER {
         if(s2 || startup.exists()) updateLog(startup, s);
     }
 
-    public static synchronized void updateLog(File log, String s) throws FileNotFoundException {
+    public synchronized void updateLog(File log, String s) throws FileNotFoundException {
         PrintWriter pw = new PrintWriter(new FileOutputStream(log, true));
         pw.println(s);
         pw.flush();
         pw.close();
     }
 
-    public static synchronized String getPassword(){
+    public synchronized String getPassword(){
         if (console != null) {
             System.out.print("Enter your password: ");
             return new String(console.readPassword());
@@ -50,7 +54,7 @@ public class HELPER {
         return null;
     }
 
-    public static void serverStartup(File root) throws IOException {
+    public void serverStartup(File root) throws IOException {
         Scanner sc = new Scanner(System.in);
 
         System.out.println("Server Startup");
@@ -72,11 +76,11 @@ public class HELPER {
             for (String s : user_pass.keySet()) System.out.println(s);
             System.out.println();
         }
-        System.out.println("Server Staring");
+        System.out.println("Server Starting");
         System.out.println();
     }
 
-    public static void createUser(File root, String pass) throws IOException {
+    public void createUser(File root, String pass) throws IOException {
         File user_hash = new File(root.getPath() + path_sep + "config", "user_hash");
 
         String hash = getSHA256Hash(pass);
@@ -91,7 +95,7 @@ public class HELPER {
         pw.close();
     }
 
-    public static void loadUser(File root) throws FileNotFoundException {
+    public void loadUser(File root) throws FileNotFoundException {
         File user_hash = new File(root.getPath() + path_sep + "config", "user_hash");
         Scanner in = new Scanner(user_hash);
         user_pass = new HashMap<>();
@@ -101,7 +105,7 @@ public class HELPER {
         }
     }
 
-    public static void addUser(File root, String user, String pass) throws IOException{
+    public void addUser(File root, String user, String pass) throws IOException{
         File user_hash = new File(root.getPath() + path_sep + "config", "user_hash");
 
         String hash = getSHA256Hash(pass);
@@ -114,11 +118,12 @@ public class HELPER {
         pw.close();
     }
 
-    public static synchronized boolean verifyUser(String[] data){
+    public synchronized boolean verifyUser(String[] data){
+        if(user_pass == null) System.out.println("Null Users");;
         return user_pass.containsKey(data[0]) && user_pass.get(data[0]).equals(getSHA256Hash(data[1]));
     }
 
-    private static synchronized String getSHA256Hash(String input) {
+    private synchronized String getSHA256Hash(String input) {
         try {
             byte[] hashBytes = MessageDigest.getInstance("SHA-256").digest(input.getBytes());
             StringBuilder hashBuilder = new StringBuilder();

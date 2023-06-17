@@ -21,11 +21,13 @@ public class CLIENT {
             System.out.println("CLIENT: Invalid hostname");
             System.exit(-1);
         }
+        HELPER h = new HELPER();
+        FTP ftp = new FTP();
 
         String[] details = args[0].split("@");
         String user = details[0];
         String ip = details[1];
-        String pass =  HELPER.getPassword();;
+        String pass =  h.getPassword();
         int port = Integer.parseInt(args[1]);
 
         Scanner sc = new Scanner(System.in);
@@ -54,11 +56,11 @@ public class CLIENT {
                 String[] cmd = data.split("\s");
                 if(cmd[0].equalsIgnoreCase("get")) {
                     for(int i=1;i<cmd.length;i++)
-                        FTP.receive(cmd[i], in, ".");
+                        ftp.receive(cmd[i], in, ".");
                 }
                 else if(cmd[0].equalsIgnoreCase("put")) {
                     for(int i=1;i<cmd.length;i++)
-                        FTP.send(cmd[i], out, ".");
+                        ftp.send(cmd[i], out, ".");
                 }
                 else{
                     System.out.println(in.readUTF());

@@ -7,16 +7,16 @@ public class FTP {
         }
         return true;
     }
-    public static synchronized void receive(String file, DataInputStream in, String d) throws IOException {
+    public void receive(String file, DataInputStream in, String d) throws IOException {
 
         if(in.readUTF().equalsIgnoreCase("yes")){
             System.out.print("Receiving File: " + file + " ");
 
-            int bytes;
-            byte[] buffer = new byte[4 * 1024];
-
             long size = in.readLong();
             System.out.println("Size: " + size + " bytes");
+
+            int bytes;
+            byte[] buffer = new byte[getLength(size) * 1024];
 
             File temp = new File(d, file);
             FileOutputStream fos = new FileOutputStream(temp);
@@ -32,18 +32,19 @@ public class FTP {
         }
     }
 
-    public static synchronized void send(String file, DataOutputStream out, String d) throws IOException{
+    public void send(String file, DataOutputStream out, String d) throws IOException{
         System.out.print("Sending File: " + file + " ");
         File temp = new File(d, file);
 
         if(temp.exists() && temp.isFile()){
             out.writeUTF("yes");
             System.out.println("Size: " + temp.length() + " bytes");
-            out.writeLong(temp.length());
+            long size = temp.length();
+            out.writeLong(size);
 
             FileInputStream fis = new FileInputStream(temp);
             int bytes;
-            byte[] buffer = new byte[4 * 1024];
+            byte[] buffer = new byte[getLength(size) * 1024];
             while((bytes = fis.read(buffer)) != -1){
                 out.write(buffer, 0, bytes);
             }
@@ -58,4 +59,25 @@ public class FTP {
         }
         out.writeUTF("close");
     }
+
+    public int getLength(long size){
+        double kb = size / 1024;
+        double mb = kb / 1024;
+        double gb = mb / 1024;
+        if(gb >= 1) {
+            System.out.println("Data Transfer at 10 MB/s");
+            return 10000;
+        }
+        else if(mb >= 1) {
+            System.out.println("Data Transfer at 2 MB/s");
+            return 2000;
+        }
+        else if(kb >= 1) {
+            System.out.println("Data Transfer at 20 KB/s");
+            return 20;
+        }
+        System.out.println("Data Transfer at 5 KB/s");
+        return 5;
+    }
+
 }
