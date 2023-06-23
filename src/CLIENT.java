@@ -30,6 +30,11 @@ public class CLIENT {
         String pass =  h.getPassword();
         int port = Integer.parseInt(args[1]);
 
+        if(pass == null){
+            System.out.println("CLIENT: Enter a valid Password");
+            System.exit(-1);
+        }
+
         Scanner sc = new Scanner(System.in);
         DataOutputStream out;
         DataInputStream in;
@@ -37,7 +42,7 @@ public class CLIENT {
         try {
             Socket s = new Socket(ip, port);
             out = new DataOutputStream(s.getOutputStream());
-            out.writeUTF(user + "@" + (pass != null ? pass : "1234"));
+            out.writeUTF(user + "@" + pass);
             out.flush();
 
             in = new DataInputStream(s.getInputStream());
@@ -53,7 +58,7 @@ public class CLIENT {
                 System.out.print("jftp> ");
                 data = sc.nextLine();
                 out.writeUTF(data);
-                String[] cmd = data.split("\s");
+                String[] cmd = data.split(" ");
                 if(cmd[0].equalsIgnoreCase("get")) {
                     for(int i=1;i<cmd.length;i++)
                         ftp.receive(cmd[i], in, ".");

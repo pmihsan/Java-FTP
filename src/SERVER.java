@@ -6,10 +6,10 @@ import java.util.Date;
 
 public class SERVER implements Runnable {
 
-    private Socket client;
-    private File  log, dir;
-    private HELPER h;
-    private String user;
+    private final Socket client;
+    private final File  log;
+    private final File dir;
+    private final HELPER h;
 
     SERVER(Socket client, File dir, File log, HELPER h){
         this.client = client;
@@ -38,7 +38,8 @@ public class SERVER implements Runnable {
             } else {
                 out.write(0);
                 out.flush();
-                System.exit(-1);
+                h.updateLog(log, ia.getHostAddress() + ":" + client.getPort() + " " + d[0] + " invalid authentication " + new Date());
+                throw new Exception(d[0] + " Invalid Authentication");
             }
             h.updateLog(log, ia.getHostAddress() + ":" + client.getPort() + " " + d[0] + " authenticated " + new Date());
             String data;
@@ -63,6 +64,9 @@ public class SERVER implements Runnable {
         }
         catch (IOException ie){
             System.out.println("Socket Stream Error");
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
         }
     }
     public static void main(String[] args) throws IOException {
@@ -110,7 +114,11 @@ public class SERVER implements Runnable {
         if (!root.exists()) {
             if (h.initializeServer(root)) {
                 String pass = h.getPassword();
-                h.createUser(root, pass != null ? pass : "1234");
+                if(pass == null){
+                    System.out.println("SERVER: Enter a valid password");
+                    System.exit(-1);
+                }
+                h.createUser(root, pass);
                 h.createLogFile(root);
                 System.out.println("FTP Default Initialization");
             } else {

@@ -49,7 +49,7 @@ public class HELPER {
     public synchronized String getPassword(){
         if (console != null) {
             System.out.print("Enter your password: ");
-            return new String(console.readPassword());
+            return getSHA256Hash(new String(console.readPassword()));
         }
         return null;
     }
@@ -68,7 +68,11 @@ public class HELPER {
             System.out.println("Enter username");
             String user = sc.next();
             String pass = getPassword();
-            addUser(root, user, pass != null ? pass : "1234");
+            if(pass == null){
+                System.out.println("SERVER: Enter a valid password");
+                System.exit(-1);
+            }
+            addUser(root, user, pass);
             System.out.println("User " + user + " added");
         }
         else if(choice == 3){
@@ -83,12 +87,11 @@ public class HELPER {
     public void createUser(File root, String pass) throws IOException {
         File user_hash = new File(root.getPath() + path_sep + "config", "user_hash");
 
-        String hash = getSHA256Hash(pass);
         String username = System.getProperty("user.name").replace(" ", "");
-        String store = username + ":" + hash;
+        String store = username + ":" + pass;
 
         user_pass = new HashMap<>();
-        user_pass.put(username, hash);
+        user_pass.put(username, pass);
 
         PrintWriter pw = new PrintWriter(user_hash);
         pw.println(store);
@@ -108,10 +111,9 @@ public class HELPER {
     public void addUser(File root, String user, String pass) throws IOException{
         File user_hash = new File(root.getPath() + path_sep + "config", "user_hash");
 
-        String hash = getSHA256Hash(pass);
-        String store = user + ":" + hash;
+        String store = user + ":" + pass;
 
-        user_pass.put(user, hash);
+        user_pass.put(user, pass);
 
         PrintWriter pw = new PrintWriter(new FileOutputStream(user_hash, true));
         pw.println(store);
@@ -119,8 +121,8 @@ public class HELPER {
     }
 
     public synchronized boolean verifyUser(String[] data){
-        if(user_pass == null) System.out.println("Null Users");;
-        return user_pass.containsKey(data[0]) && user_pass.get(data[0]).equals(getSHA256Hash(data[1]));
+        if(user_pass == null) System.out.println("No Users Found");
+        return user_pass.containsKey(data[0]) && user_pass.get(data[0]).equals(data[1]);
     }
 
     private synchronized String getSHA256Hash(String input) {
