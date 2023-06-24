@@ -1,7 +1,7 @@
 # JFTP
 Advanced multithreaded FTP console application with user-password based login configuration, automatic log management and directory traversal functionalities and support for basic commands.
 
-#### Commands (case insensitive)
+### Commands (case insensitive)
 | Commands | Uses                                                                                           |
 |----------|------------------------------------------------------------------------------------------------|
 | list     | list the contents of the current directory                                                     |
@@ -12,21 +12,38 @@ Advanced multithreaded FTP console application with user-password based login co
 | whoami   | provides us with the username with which we have logged in.                                    |
 
 ### Usage
-#### For Server
+### Server
 ```java
     java SERVER PORT
 ```
-* PORT - To run the server on specified PORT
+**PORT** - To run the server on specified PORT
 
-#### For Client
+On first server startup it creates three folders in the current users home directory under **jftp** folder. That includes
++ config
++ log
++ share
+
+**Config**
+> This directory contains the user:password(SHA256 Hash) mapping file.
+
+**Log**
+> This directory contains two files access and startup logs which monitors the server startups.
+
+> And also monitors which user have logged in and what commands are they executing.
+
+**Share**
+> This folder acts as the share to the ftp, whichever files you want to share add it to this directory.
+
+
+### Client
 ```java
     java CLIENT USER@DOMAIN PORT
 ```
-* USER - The user through which we log in to the server.
+**USER** - The user through which we log in to the server.
 
-* DOMAIN - Domain name or IP address on which the server is running.
+**DOMAIN** - Domain name or IP address on which the server is running.
 
-* PORT - To connect to the server running on specified PORT.
+**PORT** - To connect to the server running on specified PORT.
 
 ### Features
 * Automatic log management on server startup, user authentication and command execution.
